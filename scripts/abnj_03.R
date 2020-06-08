@@ -105,6 +105,7 @@ pus_indian <- st_make_grid(indian, square = F, cellsize = c(grid_spacing, grid_s
   st_sf() # not really required, but makes the grid nicer to work with later
 plot(st_geometry(pus_indian))
 # nrow(pus_indian) # 12838 polygons... aprox 13ks area of 2.2km2
+st_write(pus_indian, dsn = "files/indian-poly_abnj_01", driver = "ESRI Shapefile")
 
 pus_indian2 <- pus_indian %>% 
   st_transform(crs = CRS(geo.prj))
