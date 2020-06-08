@@ -17,7 +17,7 @@ library(ggplot2)
 # drawExtent()
 
 proj_indian <- "+proj=laea +lon_0=85.78 +lat_0=-1.63 +datum=WGS84 +units=m +no_defs"
-box_indian <- c(xmin = 40.12496, ymin = -38.16116, xmax = 115.8954, ymax = 21.88332) %>%
+box_indian <- c(xmin = 20.00262, ymin = -60, xmax = 146.8982, ymax = 31.18586) %>%
   st_bbox()
 indian <- st_read("files/global-poly_abnj_01/global-poly_abnj_01.shp") %>% 
   st_crop(box_indian) %>% 
@@ -28,7 +28,7 @@ pus_indian <- st_make_grid(indian, square = F, cellsize = c(grid_spacing, grid_s
   st_sf() # not really required, but makes the grid nicer to work with later
 plot(st_geometry(pus_indian))
 # nrow(pus_indian) # 12838 polygons... aprox 13ks area of 2.2km2
-st_write(pus_indian, dsn = "files/indian-poly_abnj_01", driver = "ESRI Shapefile")
+st_write(pus_indian, dsn = "files/indian-poly_abnj_02", driver = "ESRI Shapefile")
 
 pus_indian2 <- pus_indian %>% 
   st_transform(crs = CRS(geo.prj))
@@ -40,10 +40,10 @@ hist(pus_area)
 
 
 # plotting to see what we have :-)
-theme_opts3 <- list(theme(panel.grid.minor = element_blank(),
-                          panel.grid.major = element_blank(),
-                          panel.background = element_rect(fill = "white", colour = "black"),
-                          plot.background = element_rect(fill = "white"),
+theme_opts3 <- list(theme(# panel.grid.minor = element_blank(),
+                          # panel.grid.major = element_blank(),
+                          # panel.background = element_rect(fill = "white", colour = "black"),
+                          # plot.background = element_rect(fill = "white", colour = "black"),
                           panel.border = element_blank(),
                           axis.line = element_line(size = 1),
                           axis.text.x = element_text(size = rel(2), angle = 0),
@@ -70,12 +70,41 @@ ggplot() +
   geom_sf(data = world_sf, size = 0.05, fill = "grey20") +
   ggtitle("Planning unit region Indian Ocean ABNJ") +
   theme_opts3 +
-  ggsave("pdfs/abnj_indian_latlon_01.pdf", width = 20, height = 15, dpi = 300)
+  ggsave("pdfs/abnj_indian_latlon_02.pdf", width = 20, height = 15, dpi = 300)
 
 ggplot() +
   geom_sf(data = pus_indian, size = 0.05) +
   geom_sf(data = world_indian, size = 0.05, fill = "grey20") +
   ggtitle("Planning unit region Indian Ocean ABNJ") +
   theme_opts3 +
-  ggsave("pdfs/abnj_indian_laea_01.pdf", width = 20, height = 15, dpi = 300)
+  ggsave("pdfs/abnj_indian_laea_02.pdf", width = 20, height = 15, dpi = 300)
+
+#######
+
+moll_global <- "+proj=moll +lon_0=0 +datum=WGS84 +units=m +no_defs"
+global <- st_read("files/global-poly_abnj_01/global-poly_abnj_01.shp") %>% 
+  st_transform(crs = CRS(moll_global))
+plot(st_geometry(global))
+
+grid_spacing <- 50000  # size of squares, in units of the CRS (115473.4 for 1deg)
+pus_global <- st_make_grid(global, square = F, cellsize = c(grid_spacing, grid_spacing)) %>% # the grid, covering bounding box
+  st_sf() # not really required, but makes the grid nicer to work with later
+# plot(st_geometry(pus_global))
+# nrow(pus_global)
+st_write(pus_global, dsn = "files/abnj_global_moll_05deg", driver = "ESRI Shapefile")
+
+pus_area <- round(st_area(pus_global)/1e+06)
+range(pus_area)
+hist(pus_area)
+
+
+world_moll <- ne_countries(scale = "medium", returnclass = "sf") %>%
+  st_transform(crs = CRS(moll_global))
+
+ggplot() +
+  geom_sf(data = pus_global, size = 0.05) +
+  geom_sf(data = world_moll, size = 0.05, fill = "grey20") +
+  ggtitle("Planning unit region 1° ABNJ") +
+  theme_opts3 +
+  ggsave("pdfs/abnj_global_moll_05deg.pdf", width = 20, height = 15, dpi = 300)
 
