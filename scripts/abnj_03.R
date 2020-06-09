@@ -84,14 +84,14 @@ ggplot() +
 moll_global <- "+proj=moll +lon_0=0 +datum=WGS84 +units=m +no_defs"
 global <- st_read("files/global-poly_abnj_01/global-poly_abnj_01.shp") %>% 
   st_transform(crs = CRS(moll_global))
-plot(st_geometry(global))
+# plot(st_geometry(global))
 
-grid_spacing <- 50000  # size of squares, in units of the CRS (115473.4 for 1deg)
+grid_spacing <- 115473.4  # size of squares, in units of the CRS (115473.4 for 1deg) (50000 for 0.5deg)
 pus_global <- st_make_grid(global, square = F, cellsize = c(grid_spacing, grid_spacing)) %>% # the grid, covering bounding box
   st_sf() # not really required, but makes the grid nicer to work with later
 # plot(st_geometry(pus_global))
 # nrow(pus_global)
-st_write(pus_global, dsn = "files/abnj_global_moll_05deg", driver = "ESRI Shapefile")
+st_write(pus_global, dsn = "files/abnj_global_moll_01deg", driver = "ESRI Shapefile")
 
 pus_area <- round(st_area(pus_global)/1e+06)
 range(pus_area)
