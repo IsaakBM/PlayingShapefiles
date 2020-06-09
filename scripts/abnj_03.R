@@ -26,17 +26,19 @@ indian <- st_read("files/global-poly_abnj_01/global-poly_abnj_01.shp") %>%
 grid_spacing <- 50000  # size of squares, in units of the CRS (i.e. meters for 5514)
 pus_indian <- st_make_grid(indian, square = F, cellsize = c(grid_spacing, grid_spacing)) %>% # the grid, covering bounding box
   st_sf() # not really required, but makes the grid nicer to work with later
-plot(st_geometry(pus_indian))
-# nrow(pus_indian) # 12838 polygons... aprox 13ks area of 2.2km2
+pus_indian <- pus_indian %>% 
+  mutate(layer = as.numeric(seq(1,nrow(pus_indian)))) %>% 
+  arrange(layer)
+  
+# plot(st_geometry(pus_indian))
+nrow(pus_indian) # 25143 polygons... aprox 13ks area of 2.2km2
 st_write(pus_indian, dsn = "files/indian-poly_abnj_02", driver = "ESRI Shapefile")
 
-pus_indian2 <- pus_indian %>% 
-  st_transform(crs = CRS(geo.prj))
-
+# pus_indian2 <- pus_indian %>% 
+#   st_transform(crs = CRS(geo.prj))
 pus_area <- round(st_area(pus_indian)/1e+06)
 range(pus_area)
 hist(pus_area)
-
 
 
 # plotting to see what we have :-)
