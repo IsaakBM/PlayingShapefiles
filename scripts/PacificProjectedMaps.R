@@ -157,13 +157,33 @@ library(ggplot2)
 
   
 ##########################################################################################
-# Create equal-size grids
+# Create equal-size grids (just testing scripts but could be useful for you)
 ##########################################################################################
-pus_global <- st_make_grid(abnj_robinson, square = F, cellsize = c(119300, 119300)) %>% 
+pus_global <- st_make_grid(abnj_robinson, square = F, cellsize = c(53730, 53730)) %>% 
         st_sf()
 # st_write(pus_global, dsn = "files/PacificCenterABNJGrid_1deg", driver = "ESRI Shapefile")
 ggplot() +
-  geom_sf(data = pus_global)
-      
-      
-            
+  geom_sf(data = pus_global) +
+  geom_sf(data = world_robinson, size = 0.05, fill = "grey20") +
+  ggsave("pdfs/PacificCenterABNJGrid_1deg.pdf", width = 20, height = 15, dpi = 300)
+
+# pacific <- locator(4)
+# plot(st_geometry(abnj_robinson))
+pacific_polygon <- st_crop(abnj_robinson, xmin = -7601017, ymin = -8270780, xmax = 10059099, ymax = 7601017)
+pacific_land <- st_crop(world_robinson, xmin = -7601017, ymin = -8270780, xmax = 10059099, ymax = 7601017)
+# st_write(pacific_polygon, dsn = "files/PacificABNJ", driver = "ESRI Shapefile")
+
+ggplot() +
+  geom_sf(data = pacific_polygon) +
+  geom_sf(data = pacific_land, size = 0.05, fill = "grey20") #+
+  # ggsave("pdfs/PacificABNJ.jpg", width = 20, height = 15, dpi = 300)
+
+# testing a 0.5 grid hexagon grid
+pacific_pus <- st_make_grid(pacific_land, square = F, cellsize = c(53730, 53730)) %>% 
+  st_sf()
+# st_write(pus_global, dsn = "files/PacificABNJGrid_05deg", driver = "ESRI Shapefile")
+ggplot() +
+  geom_sf(data = pacific_pus) +
+  geom_sf(data = pacific_land, size = 0.05, fill = "grey20") +
+  ggsave("pdfs/PacificABNJGrid_05deg.jpg", width = 20, height = 15, dpi = 300)
+
