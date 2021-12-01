@@ -23,4 +23,5 @@ nrow(wdpa_global_2)
 wdpa_global_3 <- wdpa_global %>%
   filter(MARINE != 0)
 
-saveRDS(wdpa_global_3, "/Users/Ibrito/OneDrive - Conservation International Foundation/Documents/MPAs_ClimateChange/wdpa_global_marine.rds")
+saveRDS(wdpa_global_3, 
+        "/Users/Ibrito/OneDrive - Conservation International Foundation/Documents/MPAs_ClimateChange/wdpa_global_marine.rds")
