@@ -39,13 +39,17 @@ polygon <- st_polygon(x = list(rbind(c(-0.0001, 90),
   st_set_crs("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
 
 test <- as(rs2, "SpatVector")
-test <- terra::crds(rs2) %>% 
-  as_tibble()
+test <- terra::crds(rs2, df = TRUE, na.rm = FALSE) %>% 
+  as_tibble() %>% 
+  dplyr::mutate(var1 = rs2[]) %>% 
+  as.data.frame()
+rs_richness <- rasterFromXYZ(test)
+plot(rs_richness)
+rs_richness_final <- resample(rs_richness, rs, resample = "ngb")
+rs1_richness <- as(rs_richness, "SpatialPolygonsDataFrame")
 
-nrow(test)  
-rs2[]
-
-test <- as(rs2, "SpatialPolygonsDataFrame")
+test2 <- as(test, "SpatVector")
+test2 <- as(test, "SpatialPolygonsDataFrame")
 richness_robinson <- test %>% 
   st_as_sf() %>% 
   st_difference(polygon) %>% 
