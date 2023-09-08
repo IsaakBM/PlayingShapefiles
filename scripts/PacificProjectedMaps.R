@@ -24,10 +24,10 @@ library(rnaturalearth)
 library(rnaturalearthdata)
 library(fasterize)
 library(ggplot2)
-sf_use_s2(FALSE)
 #########################################################
 # Create a land shapefile Pacific centered and projected  
 #########################################################
+  sf_use_s2(FALSE)
 # Using land mask for nature earth package to create a projected sf/shapefile object
   world <- ne_countries(scale = 'small', returnclass = 'sf') %>% 
     st_make_valid()
@@ -63,7 +63,7 @@ sf_use_s2(FALSE)
       which
   # Adding buffer 0
     world_robinson[crosses,] %<>%
-      st_buffer(0) 
+      st_buffer(0.02) 
     # Check the plot again
       ggplot() +
         geom_sf(data = world_robinson) # OK now looks better!
