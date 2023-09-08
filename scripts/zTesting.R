@@ -6,9 +6,55 @@ library(dplyr)
 library(readr)
 library(ggplot2)
 library(tidyterra)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(magrittr)
 
 a <- st_read("files/PacificCenterLand/PacificCenterLand.shp")
 plot(st_geometry(a))
+
+#########################################################
+# Create a land shapefile Pacific centered and projected  
+#########################################################
+sf_use_s2(FALSE)
+sphere <- ne_download(category = "physical", type = "wgs84_bounding_box", returnclass = "sf")
+# Define a long & slim polygon that overlaps the meridian line & set its CRS to match # that of world
+polygon <- st_polygon(x = list(rbind(c(-0.0001, 90),
+                                     c(0, 90),
+                                     c(0, -90),
+                                     c(-0.0001, -90),
+                                     c(-0.0001, 90)))) %>%
+  st_sfc() %>%
+  st_set_crs(4326)
+
+# Modify world dataset to remove overlapping portions with world's polygons
+sphere2 <- sphere %>% 
+  st_difference(polygon)
+# Perform transformation on modified version of world dataset
+sphere_robinson <- sphere2 %>% 
+  st_transform(crs = "+proj=robin +lon_0=0 +datum=WGS84 +units=m +no_defs")
+# Check the plot if just in case
+ggplot() +
+  geom_sf(data = sphere_robinson) 
+# notice that there is a line in the middle of Antarctica. This is because we have
+# split the map after reprojection. We need to fix this:
+
+# Fix those extra boundaries
+bbox <-  st_bbox(sphere_robinson)
+bbox[c(1,3)]  <-  c(-1e-5,1e-5)
+polygon2 <- st_as_sfc(bbox)
+crosses <- sphere_robinson %>%
+  st_intersects(polygon2) %>%
+  sapply(length) %>%
+  as.logical %>%
+  which
+# Adding buffer 0
+sphere_robinson[crosses,] %<>%
+  st_buffer(100) 
+# Check the plot again
+ggplot() +
+  geom_sf(data = sphere_robinson) # OK now looks better!
+
 
 robin <- "+proj=robin +lon_0=180 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
 rs <- terra::rast("files/dt_global_allsat_madt_fsle_1994-01.tif")
@@ -18,7 +64,9 @@ rs2 <- subset(rs, 1)
 rs4 <- terra::project(rs2, y = "+proj=robin +lon_0=180 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs")
 plot(rs4)
 
+
 p1 <- ggplot() +
+  geom_sf(data = sphere_robin, size = 0.05) +
   geom_spatraster(data = rs5) +
   geom_sf(data = a, size = 0.05, fill = "grey20") +
   scale_fill_distiller(palette = "RdYlBu",
