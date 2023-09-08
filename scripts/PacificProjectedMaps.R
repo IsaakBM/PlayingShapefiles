@@ -24,12 +24,13 @@ library(rnaturalearth)
 library(rnaturalearthdata)
 library(fasterize)
 library(ggplot2)
-
+sf_use_s2(FALSE)
 #########################################################
 # Create a land shapefile Pacific centered and projected  
 #########################################################
 # Using land mask for nature earth package to create a projected sf/shapefile object
-  world <- ne_countries(scale = 'small', returnclass = 'sf')
+  world <- ne_countries(scale = 'small', returnclass = 'sf') %>% 
+    st_make_valid()
   # Define a long & slim polygon that overlaps the meridian line & set its CRS to match # that of world
   polygon <- st_polygon(x = list(rbind(c(-0.0001, 90),
                                        c(0, 90),
